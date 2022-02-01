@@ -62,20 +62,22 @@ def ASTNodeBuilder(parse_tree):
             elif token_value == "\\/":
                 nodes.append(("\\/", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "G":
-                # nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
-                nodes.append(("not", [("U", [("true", [], TokenTypes.VALUE), ("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR)], TokenTypes.OPERATOR)], TokenTypes.OPERATOR))
+                nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("not", [("U", [("true", [], TokenTypes.VALUE), ("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR)], TokenTypes.OPERATOR)], TokenTypes.OPERATOR))
             elif token_value == "F":
                 # nodes.append(("F", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
                 nodes.append(("U", [("true", [], TokenTypes.VALUE), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "U":
                 nodes.append(("U", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "=>":
-                # nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
-                nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1])[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1])[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "E":
                 nodes.append(("E", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "A":
                 nodes.append(("A", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+            elif token_value == "X":
+                nodes.append(("X", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
     return nodes
 
 def eval_token(token):
@@ -132,6 +134,67 @@ def reverse_tree_traversal(AST):
 
 
 
+def transform_tree(AST):
+    print(AST)
+    print('\n\n\n\n\n')
+    for node in AST:
+        if node[0] == "A":
+            if node[1][0][0] == "X":
+                node = ("not", [
+                    ("E", [
+                        ("X", [
+                            ("not", node[1][0][1], TokenTypes.OPERATOR)
+                        ], TokenTypes.OPERATOR)
+                    ], TokenTypes.OPERATOR)
+                ], TokenTypes.OPERATOR)
+            
+            elif node[1][0][0] == "G":
+                print("G")
+                node = ("not", [
+                    ("E", [
+                        ("U", [
+                            ("true", [], TokenTypes.VALUE),
+                            ("not", node[1][0][1], TokenTypes.OPERATOR)
+                        ], TokenTypes.OPERATOR)
+                    ], TokenTypes.OPERATOR)
+                ], TokenTypes.OPERATOR)
+        
+
+        print(AST)
+        print('\n\n\n\n\n')
+        if len(node[1]) != 0:
+            transform_tree(node[1])
+
+def transform_tree2(AST):
+
+    for i in range(len(AST)):
+        if AST[i][0] == "A":
+            if AST[i][1][0][0] == "X":
+                AST = [("not", [
+                    ("E", [
+                        ("X", [
+                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR)
+                        ], TokenTypes.OPERATOR)
+                    ], TokenTypes.OPERATOR)
+                ], TokenTypes.OPERATOR)]
+            
+            elif AST[i][1][0][0] == "G":
+                AST = [("not", [
+                    ("E", [
+                        ("U", [
+                            ("true", [], TokenTypes.VALUE),
+                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR)
+                        ], TokenTypes.OPERATOR)
+                    ], TokenTypes.OPERATOR)
+                ], TokenTypes.OPERATOR)]
+        
+
+        if len(AST[i][1]) != 0:
+            transform_tree2(AST[i][1])
+            print(AST)
+
+    return AST
+
 
 
 
@@ -161,6 +224,11 @@ def reverse_tree_traversal(AST):
 #     print(i)
 
 # print(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
-printTree(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
+# printTree(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
+test_ast = ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )")
+# print(test_ast)
+test_ast = transform_tree2(test_ast)
+printTree(test_ast)
+print(test_ast)
 # for i in reverse_tree_traversal(ASTBuilder("G maybe")):
 #     print(i)
