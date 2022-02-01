@@ -17,9 +17,9 @@ def lexer(formula: str):
             expression.append((TokenTypes.OPERATOR, w))
         elif w in VALUE_LIST:
             if w == "true":
-                expression.append((TokenTypes.VALUE, True))
+                expression.append((TokenTypes.VALUE, "true"))
             else:
-                expression.append((TokenTypes.VALUE, False))
+                expression.append((TokenTypes.VALUE, "false"))
         else:
             expression.append((TokenTypes.EXPRESSION, w))
     return expression
@@ -56,28 +56,32 @@ def ASTNodeBuilder(parse_tree):
         
         if token_type == TokenTypes.OPERATOR:
             if token_value == "not":
-                nodes.append(("not", [eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "/\\":
-                nodes.append(("/\\", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("/\\", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "\\/":
-                nodes.append(("\\/", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("\\/", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "G":
-                nodes.append(("G", [eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "F":
-                nodes.append(("F", [eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("F", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("U", ["true", eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "U":
-                nodes.append(("U", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("U", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "=>":
-                nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]]))
+                # nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1])[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "E":
-                nodes.append(("E", [eval_token(parse_tree[i + 1])[0]]))
+                nodes.append(("E", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
     return nodes
 
 def eval_token(token):
     if token[0] == TokenTypes.COMPLEX_EXPRESSION:
         return ASTNodeBuilder(token[1])
     else:
-        return [token[1]]
+        return [(token[1], [], TokenTypes.VALUE)]
+
+
 
 
 
@@ -87,17 +91,15 @@ def printTree(node, level=0):
     if level == 0:
         node = node[0]
 
-    if type(node) == str:
-        print(' ' * 4 * level + '->', node)
-        return
-
-    if len(node[1]) == 1:
+    if len(node[1]) == 0:
+        print(' ' * 4 * level + '->', node[0])
+    elif len(node[1]) == 1:
         printTree(node[1][0], level + 1)
-        print(' ' * 4 * level + '->', node[0][0])
+        print(' ' * 4 * level + '->', node[0])
     else:
         printTree(node[1][0], level + 1)
-        print(' ' * 4 * level + '->', node[0][0])
-        printTree(node[1][0], level + 1)
+        print(' ' * 4 * level + '->', node[0])
+        printTree(node[1][1], level + 1)
 
 
 
@@ -108,17 +110,15 @@ def tree_traversal(AST):
     def add_trav(step):
         trav.append(step)
 
-    if type(AST) == str:
-        add_trav(AST)
-        return trav
-    
+    if len(AST[0][1]) == 0:
+        add_trav(AST[0])
     if len(AST[0][1]) == 1:
         add_trav(AST[0])
         trav += tree_traversal(AST[0][1])
-    if len(AST[0][1]) == 2:
+    elif len(AST[0][1]) == 2:
         add_trav(AST[0])
-        trav += tree_traversal(AST[0][1][0])
-        trav += tree_traversal(AST[0][1][1])
+        trav += tree_traversal([AST[0][1][0]])
+        trav += tree_traversal([AST[0][1][1]])
 
     return trav
     
@@ -142,9 +142,17 @@ def reverse_tree_traversal(AST):
 # print(ASTBuilder("F ( ( idle1 \\/ idle3 ) /\\ idle2 )"))
 
 # print(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )"))
-printTree(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )"))
+# printTree(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )"))
 # print(tree_traversal(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )")))
 # print(reverse_tree_traversal(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )")))
 
-for i in reverse_tree_traversal(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )")):
+# for i in reverse_tree_traversal(ASTBuilder("G ( E ( F ( idle1 /\\ idle2 ) ) )")):
+#     print(i)
+
+# print(ASTBuilder("idle1 => idle2"))
+
+# printTree(ASTBuilder("idle1 => idle2"))
+
+print(ASTBuilder("idle1 => idle2"))
+for i in reverse_tree_traversal(ASTBuilder("idle1 => idle2")):
     print(i)
