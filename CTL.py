@@ -6,7 +6,7 @@ class TokenTypes(Enum):
     VALUE = 2
     COMPLEX_EXPRESSION = 3
 
-OP_LIST = [ "not", "/\\", "\\/", "G", "U", "F", "(", ")", "=>", "E"]
+OP_LIST = [ "not", "/\\", "\\/", "G", "U", "F", "(", ")", "=>", "E", "A"]
 VALUE_LIST = ["true", "false"]
 
 def lexer(formula: str):
@@ -62,10 +62,11 @@ def ASTNodeBuilder(parse_tree):
             elif token_value == "\\/":
                 nodes.append(("\\/", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "G":
-                nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("not", [("U", [("true", [], TokenTypes.VALUE), ("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR)], TokenTypes.OPERATOR)], TokenTypes.OPERATOR))
             elif token_value == "F":
-                nodes.append(("F", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
-                # nodes.append(("U", ["true", eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("F", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("U", [("true", [], TokenTypes.VALUE), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "U":
                 nodes.append(("U", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "=>":
@@ -73,6 +74,8 @@ def ASTNodeBuilder(parse_tree):
                 nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1])[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
             elif token_value == "E":
                 nodes.append(("E", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+            elif token_value == "A":
+                nodes.append(("A", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
     return nodes
 
 def eval_token(token):
@@ -153,6 +156,11 @@ def reverse_tree_traversal(AST):
 
 # printTree(ASTBuilder("idle1 => idle2"))
 
-print(ASTBuilder("idle1 => idle2"))
-for i in reverse_tree_traversal(ASTBuilder("idle1 => idle2")):
-    print(i)
+# print(ASTBuilder("idle1 => idle2"))
+# for i in reverse_tree_traversal(ASTBuilder("idle1 => idle2")):
+#     print(i)
+
+# print(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
+printTree(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
+# for i in reverse_tree_traversal(ASTBuilder("G maybe")):
+#     print(i)
