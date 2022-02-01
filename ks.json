@@ -1,0 +1,14 @@
+{
+    "model":[
+        {
+            "name":"s0",
+            "transitions":[1],
+            "label":["p"]
+        },
+        {
+            "name":"s1",
+            "transitions":[0],
+            "label":["q"]
+        }
+    ]
+}
