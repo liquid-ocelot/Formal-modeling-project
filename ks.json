@@ -8,7 +8,7 @@
         {
             "name":"s1",
             "transitions":[0],
-            "label":["q"]
+            "label":["q", "p"]
         }
     ]
 }

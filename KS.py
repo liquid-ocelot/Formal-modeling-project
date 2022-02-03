@@ -7,16 +7,16 @@ class KS_Node:
     def __init__(self, name, transitions, label):
         self.name = name
         self.transitions = transitions
-        self.label = label
+        self.label: list[str] = label
         self.check_results = {}
         self.seenbefore = False
         self.nb = 0
 
     def check_formula_result(self, formula) -> bool:
-        return self.check_results[formula]
+        return self.check_results[formula[3]]
     
     def add_formula_result(self, formula, result):
-        self.check_results[formula] = result
+        self.check_results[formula[3]] = result
 
     def __str__(self) -> str:
         return self.name + ": transition:" + str(self.transitions) +" label:" + str(self.label)
@@ -41,7 +41,7 @@ class KS_Model:
         return string_rep
 
 
-test_model = KS_Model("ks.json")
-print(test_model)
+# test_model = KS_Model("ks.json")
+# print(test_model)
 
 

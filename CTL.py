@@ -1,4 +1,5 @@
 from enum import Enum
+from tkinter import N
 
 class TokenTypes(Enum):
     OPERATOR = 0
@@ -40,13 +41,27 @@ def ParseTreeBuilder(token_list):
     return tree
 
 
+def makeCounter():
+    n = 0
+    def counter():
+        nonlocal n
+        n += 1
+        return n
+    return counter
 
 def ASTBuilder(formula: str):
     parse_tree = ParseTreeBuilder(lexer(formula))
-    AST = ASTNodeBuilder(parse_tree)
+    AST = ASTNodeBuilder(parse_tree, makeCounter())
     return AST
 
-def ASTNodeBuilder(parse_tree):
+def ASTBuilderTransform(formula: str):
+    parse_tree = ParseTreeBuilder(lexer(formula))
+    counter = makeCounter()
+    AST = ASTNodeBuilder(parse_tree, counter)
+    AST = transform_tree2(AST, counter)
+    return AST
+
+def ASTNodeBuilder(parse_tree, count_function):
 
 
     nodes = []
@@ -56,35 +71,35 @@ def ASTNodeBuilder(parse_tree):
         
         if token_type == TokenTypes.OPERATOR:
             if token_value == "not":
-                nodes.append(("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("not", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "/\\":
-                nodes.append(("/\\", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("/\\", [eval_token(parse_tree[i - 1], count_function)[0], eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "\\/":
-                nodes.append(("\\/", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("\\/", [eval_token(parse_tree[i - 1], count_function)[0], eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "G":
-                nodes.append(("G", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("G", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
                 # nodes.append(("not", [("U", [("true", [], TokenTypes.VALUE), ("not", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR)], TokenTypes.OPERATOR)], TokenTypes.OPERATOR))
             elif token_value == "F":
                 # nodes.append(("F", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
-                nodes.append(("U", [("true", [], TokenTypes.VALUE), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("U", [("true", [], TokenTypes.VALUE, count_function()), eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "U":
-                nodes.append(("U", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("U", [eval_token(parse_tree[i - 1], count_function, )[0], eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "=>":
-                nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
-                # nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1])[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                # nodes.append(("=>", [eval_token(parse_tree[i - 1])[0], eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("\\/", [("not", [eval_token(parse_tree[i - 1], count_function)[0]], TokenTypes.OPERATOR), eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "E":
-                nodes.append(("E", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("E", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "A":
-                nodes.append(("A", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("A", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "X":
-                nodes.append(("X", [eval_token(parse_tree[i + 1])[0]], TokenTypes.OPERATOR))
+                nodes.append(("X", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
     return nodes
 
-def eval_token(token):
+def eval_token(token, count_function):
     if token[0] == TokenTypes.COMPLEX_EXPRESSION:
-        return ASTNodeBuilder(token[1])
+        return ASTNodeBuilder(token[1],count_function)
     else:
-        return [(token[1], [], TokenTypes.VALUE)]
+        return [(token[1], [], TokenTypes.VALUE, count_function())]
 
 
 
@@ -165,7 +180,7 @@ def transform_tree(AST):
         if len(node[1]) != 0:
             transform_tree(node[1])
 
-def transform_tree2(AST):
+def transform_tree2(AST, count_function):
 
     for i in range(len(AST)):
         if AST[i][0] == "A":
@@ -173,25 +188,25 @@ def transform_tree2(AST):
                 AST = [("not", [
                     ("E", [
                         ("X", [
-                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR)
-                        ], TokenTypes.OPERATOR)
-                    ], TokenTypes.OPERATOR)
-                ], TokenTypes.OPERATOR)]
+                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR, count_function())
+                        ], TokenTypes.OPERATOR, count_function())
+                    ], TokenTypes.OPERATOR, count_function())
+                ], TokenTypes.OPERATOR, count_function())]
             
             elif AST[i][1][0][0] == "G":
                 AST = [("not", [
                     ("E", [
                         ("U", [
-                            ("true", [], TokenTypes.VALUE),
-                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR)
-                        ], TokenTypes.OPERATOR)
-                    ], TokenTypes.OPERATOR)
-                ], TokenTypes.OPERATOR)]
+                            ("true", [], TokenTypes.VALUE, count_function()),
+                            ("not", AST[i][1][0][1], TokenTypes.OPERATOR, count_function())
+                        ], TokenTypes.OPERATOR, count_function())
+                    ], TokenTypes.OPERATOR, count_function())
+                ], TokenTypes.OPERATOR, count_function())]
         
 
         if len(AST[i][1]) != 0:
-            transform_tree2(AST[i][1])
-            print(AST)
+            transform_tree2(AST[i][1], count_function)
+            # print(AST)
 
     return AST
 
@@ -225,10 +240,15 @@ def transform_tree2(AST):
 
 # print(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
 # printTree(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
-test_ast = ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )")
+# test_ast = ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )")
 # print(test_ast)
-test_ast = transform_tree2(test_ast)
-printTree(test_ast)
-print(test_ast)
-# for i in reverse_tree_traversal(ASTBuilder("G maybe")):
+# test_ast = transform_tree2(test_ast)
+# printTree(test_ast)
+# print(test_ast)
+# for i in reverse_tree_traversal(test_ast):
 #     print(i)
+
+# print(ASTBuilder("E ( p )"))
+# print(ASTBuilderTransform("E ( F idle2 )"))
+
+# print(ASTBuilderTransform("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
