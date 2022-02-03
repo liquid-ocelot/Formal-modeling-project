@@ -55,6 +55,7 @@ def ASTBuilder(formula: str):
     return AST
 
 def ASTBuilderTransform(formula: str):
+    # print(formula == "A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )")
     parse_tree = ParseTreeBuilder(lexer(formula))
     counter = makeCounter()
     AST = ASTNodeBuilder(parse_tree, counter)
@@ -251,4 +252,4 @@ def transform_tree2(AST, count_function):
 # print(ASTBuilder("E ( p )"))
 # print(ASTBuilderTransform("E ( F idle2 )"))
 
-# print(ASTBuilderTransform("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
+# print(ASTBuilderTransform("E ( F ( idle1 /\\ idle2 ) )"))

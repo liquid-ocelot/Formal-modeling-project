@@ -1,0 +1,45 @@
+{
+    "model":[
+        {
+            "name":"s0",
+            "transitions":[1],
+            "label":["idle1", "idle2"]
+        },
+        {
+            "name":"s1",
+            "transitions":[3, 4],
+            "label":[ "idle2"]
+        },
+        {
+            "name":"s2",
+            "transitions":[3, 5],
+            "label":[ "idle1"]
+        },
+        {
+            "name":"s3",
+            "transitions":[6, 7],
+            "label":[]
+        },
+        {
+            "name":"s4",
+            "transitions":[6, 0],
+            "label":["idle2"]
+        },
+        {
+            "name":"s5",
+            "transitions":[7, 0],
+            "label":["idle1"]
+        },
+        {
+            "name":"s6",
+            "transitions":[2],
+            "label":[]
+        },
+        {
+            "name":"s1",
+            "transitions":[1],
+            "label":[]
+        }
+        
+    ]
+}

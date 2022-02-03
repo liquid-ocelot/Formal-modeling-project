@@ -37,7 +37,7 @@ class Algo_checks:
                     hold = None
                 elif intr[0] == "A":
                     if hold[0] == "U":
-                        self.exist_until(hold, intr)
+                        self.always_until(hold, intr)
                     else:
                         raise RuntimeError()
                     hold = None
@@ -45,13 +45,22 @@ class Algo_checks:
                     raise RuntimeError()
             # print(intr)
         
-        for node in self.model.ks_model:
-            # print(ast[0])
-            if not node.check_formula_result(ast[0]):
-                print("FALSE")
-                return
+        result = True
+        detailed_result = False
 
-        print("TRUE")
+        for node in self.model.ks_model:
+            
+            if detailed_result:
+                print(node.name + ": " + str(node.check_formula_result(ast[0])))
+
+
+            if not node.check_formula_result(ast[0]):
+                result = False
+
+        if result:
+            print("TRUE")
+        else:
+            print("FALSE")
                 
 
 
@@ -110,6 +119,8 @@ class Algo_checks:
             if node.check_formula_result(psi2):
                 L.append(node)
             
+
+
         while len(L) != 0:
             q = L.pop()
             q.add_formula_result(eu_formula, True)
