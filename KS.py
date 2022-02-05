@@ -51,7 +51,7 @@ class KS_Model:
         return string_rep
 
     @staticmethod
-    def generate(nb_state:int, label_list:list[str], filepath ,transition_probability:float = 0.4, label_probability: float = 0.4):
+    def generate(nb_state:int, label_list:list[str], filepath ,transition_probability:float = 0.55, label_probability: float = 0.4):
         node_list: list[Generated_Node] = []
 
         #generate all nodes
@@ -85,7 +85,7 @@ class KS_Model:
         for i in range(nb_state):
             node_list_json.append(node_list[i].to_dict())
 
-        with open(filepath, "w") as file:
+        with open("generated/"+filepath, "w") as file:
             json.dump({'model':node_list_json}, file)
 
 
