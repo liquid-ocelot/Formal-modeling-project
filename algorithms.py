@@ -7,7 +7,7 @@ class Algo_checks:
     def __init__(self, model:KS.KS_Model):
         self.model = model
 
-    def run(self, CTL_Formula: str):
+    def run(self, CTL_Formula: str, detail = False):
         ast = CTL.ASTBuilderTransform(CTL_Formula)
 
 
@@ -48,11 +48,11 @@ class Algo_checks:
             # print(intr)
         
         result = True
-        detailed_result = False
+        
 
         for node in self.model.ks_model:
             
-            if detailed_result:
+            if detail:
                 print(node.name + ": " + str(node.check_formula_result(ast[0])))
 
 

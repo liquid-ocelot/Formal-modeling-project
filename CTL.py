@@ -59,7 +59,7 @@ def ASTBuilderTransform(formula: str):
     parse_tree = ParseTreeBuilder(lexer(formula))
     counter = makeCounter()
     AST = ASTNodeBuilder(parse_tree, counter)
-    AST = transform_tree2(AST, counter)
+    AST = transform_tree(AST, counter)
     return AST
 
 def ASTNodeBuilder(parse_tree, count_function):
@@ -150,38 +150,8 @@ def reverse_tree_traversal(AST):
 
 
 
-def transform_tree(AST):
-    print(AST)
-    print('\n\n\n\n\n')
-    for node in AST:
-        if node[0] == "A":
-            if node[1][0][0] == "X":
-                node = ("not", [
-                    ("E", [
-                        ("X", [
-                            ("not", node[1][0][1], TokenTypes.OPERATOR)
-                        ], TokenTypes.OPERATOR)
-                    ], TokenTypes.OPERATOR)
-                ], TokenTypes.OPERATOR)
-            
-            elif node[1][0][0] == "G":
-                print("G")
-                node = ("not", [
-                    ("E", [
-                        ("U", [
-                            ("true", [], TokenTypes.VALUE),
-                            ("not", node[1][0][1], TokenTypes.OPERATOR)
-                        ], TokenTypes.OPERATOR)
-                    ], TokenTypes.OPERATOR)
-                ], TokenTypes.OPERATOR)
-        
 
-        print(AST)
-        print('\n\n\n\n\n')
-        if len(node[1]) != 0:
-            transform_tree(node[1])
-
-def transform_tree2(AST, count_function):
+def transform_tree(AST, count_function):
 
     for i in range(len(AST)):
         if AST[i][0] == "A":
@@ -206,7 +176,7 @@ def transform_tree2(AST, count_function):
         
 
         if len(AST[i][1]) != 0:
-            transform_tree2(AST[i][1], count_function)
+            transform_tree(AST[i][1], count_function)
             # print(AST)
 
     return AST
@@ -243,7 +213,7 @@ def transform_tree2(AST, count_function):
 # printTree(ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )"))
 # test_ast = ASTBuilder("A ( G ( E ( F ( idle1 /\\ idle2 ) ) ) )")
 # print(test_ast)
-# test_ast = transform_tree2(test_ast)
+# test_ast = transform_tree(test_ast)
 # printTree(test_ast)
 # print(test_ast)
 # for i in reverse_tree_traversal(test_ast):

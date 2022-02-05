@@ -1,0 +1,1 @@
+{"model": [{"name": "s0", "transitions": [2], "label": ["a", "b"]}, {"name": "s1", "transitions": [0, 2], "label": ["a"]}, {"name": "s2", "transitions": [1], "label": []}]}
