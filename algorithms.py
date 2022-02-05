@@ -21,6 +21,8 @@ class Algo_checks:
             else:
                 if intr[0] == "/\\":
                     self.and_check(intr)
+                elif intr[0] == "\\/":
+                    self.or_check(intr)
                 elif intr[0] == "not":
                     self.not_check(intr)
                 elif intr[0] == "X":
@@ -77,8 +79,12 @@ class Algo_checks:
                     node.add_formula_result(marking_formula, False)
 
     
-
-
+    def or_check(self, or_formula):
+        a = or_formula[1][0]
+        b = or_formula[1][1]
+        for node in self.model.ks_model:
+            result = node.check_formula_result(a) or node.check_formula_result(b)
+            node.add_formula_result(or_formula, result)
     
     def and_check(self, and_formula):
         a = and_formula[1][0]
