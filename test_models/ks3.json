@@ -1,0 +1,24 @@
+{
+    "model":[
+        {
+            "name":"s0",
+            "transitions":[1,3],
+            "label":["req"]
+        },
+        {
+            "name":"s1",
+            "transitions":[1,3],
+            "label":["req", "busy"]
+        },
+        {
+            "name":"s2",
+            "transitions":[0],
+            "label":[0,2,3]
+        },
+        {
+            "name":"s3",
+            "transitions":[0,1,2,3],
+            "label":["busy"]
+        }
+    ]
+}

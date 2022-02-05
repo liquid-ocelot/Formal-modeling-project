@@ -7,7 +7,7 @@ class TokenTypes(Enum):
     VALUE = 2
     COMPLEX_EXPRESSION = 3
 
-OP_LIST = [ "not", "/\\", "\\/", "G", "U", "F", "(", ")", "=>", "E", "A"]
+OP_LIST = [ "not", "/\\", "\\/", "G", "U", "F", "(", ")", "=>", "E", "A", "X"]
 VALUE_LIST = ["true", "false"]
 
 def lexer(formula: str):
@@ -66,10 +66,13 @@ def ASTNodeBuilder(parse_tree, count_function):
 
 
     nodes = []
+
     for i in range(len(parse_tree)):
         token_type = parse_tree[i][0]
         token_value = parse_tree[i][1]
         
+
+
         if token_type == TokenTypes.OPERATOR:
             if token_value == "not":
                 nodes.append(("not", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
@@ -93,6 +96,7 @@ def ASTNodeBuilder(parse_tree, count_function):
             elif token_value == "A":
                 nodes.append(("A", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
             elif token_value == "X":
+
                 nodes.append(("X", [eval_token(parse_tree[i + 1], count_function)[0]], TokenTypes.OPERATOR, count_function()))
     return nodes
 
@@ -223,3 +227,5 @@ def transform_tree(AST, count_function):
 # print(ASTBuilderTransform("E ( F idle2 )"))
 
 # print(ASTBuilderTransform("E ( F ( idle1 /\\ idle2 ) )"))
+
+print(ASTBuilderTransform("A ( X busy )"))
