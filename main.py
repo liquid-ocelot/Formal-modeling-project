@@ -1,4 +1,5 @@
 from getopt import getopt
+import CTL
 import KS
 import algorithms
 import sys, getopt
@@ -49,7 +50,7 @@ def main(argv):
             print("ksfile: " + ksfile)
             model = KS.KS_Model(ksfile)
             algo = algorithms.Algo_checks(model)
-            algo.run(ctl)
+            algo.run(ctl, True)
     elif "rundetailed" == action:
         if ksfile =="" or ctl == "":
             print("ERROR: No formula or input model")
@@ -64,6 +65,18 @@ def main(argv):
             print("ERROR: wrong input")
         else:
             KS.KS_Model.generate(nbstate, label, ksfile, transition_probability, label_probability)
+    elif "showAST" == action:
+        if ctl == "":
+            print("ERROR: wrong input")
+        else:
+            CTL.printTree(CTL.ASTBuilderTransform(ctl))
+    elif "showOperation" == action:
+        if ctl == "":
+            print("ERROR: wrong input")
+        else:
+            ast= CTL.ASTBuilderTransform(ctl)
+            for i in CTL.reverse_tree_traversal(ast):
+                print(i)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
